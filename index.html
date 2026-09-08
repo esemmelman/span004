@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Practice Spanish conjugations with study cards, self-tests, vocabulary, and Ser and Estar usage rules.">
+  <title>Spanish Conjugations</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: system-ui, sans-serif; background: #f5f7fb; color: #24324b; }
+    main { min-height: 100vh; display: grid; grid-template-columns: 220px minmax(0, 1fr); grid-template-rows: auto 1fr; gap: 24px 48px; padding: 48px; align-items: start; }
+    aside { display: contents; }
+    label { grid-column: 1; grid-row: 1; display: block; font-size: 44px; line-height: 1.2; font-weight: 650; }
+    .verb-picker { grid-column: 1; grid-row: 2; position: relative; }
+    #verbs { width: 100%; min-height: 340px; padding: 16px; border: 2px solid #ded29a; border-radius: 16px; background: #fff8d6; }
+    #verbs button { display: block; width: 100%; padding: 4px 8px; border: 0; border-radius: 8px; background: transparent; color: inherit; font-size: 56px; line-height: 1.2; text-align: left; }
+    .verb-help { position: absolute; left: -44px; top: 18px; width: 36px; height: 75.2px; padding: 0; font-size: 32px; background: transparent; border: 0; color: #24324b; }
+    .verb-help[data-help="estar"] { top: 93.2px; }
+    #verbs button[aria-selected="true"] { background: #f5d968; }
+    #verbs button:hover { background: #eee2a9; }
+    #rules-list { display: block; list-style: disc; padding-left: 1.2em; text-align: left; }
+    #rules-list li { display: list-item; font-size: 44px; line-height: 1.3; padding: 10px 0; }
+    #rules-list li::marker { font-size: 1.2em; }
+    section { grid-column: 2; grid-row: 2; min-width: 0; text-align: center; padding: 48px 32px; background: white; border: 2px solid #e0e6ef; border-radius: 24px; }
+    h1 { margin: 0 0 16px; font-size: 64px; }
+    #conjugations { padding-bottom: 64px; }
+    .conjugation-scroll { overflow-x: auto; }
+    .conjugation-grid { display: grid; grid-template-columns: max-content max-content minmax(180px, 1fr) 40px max-content max-content minmax(180px, 1fr); }
+    #verb-title, #test-title { grid-column: 4; justify-self: center; width: max-content; transform: translateX(-100px); }
+    .test-grid { grid-template-columns: minmax(180px, 1fr) 0 0 40px minmax(180px, 1fr) 0 0; }
+    #test-forms { padding-bottom: 16px; }
+    #test-forms .translation { grid-column: 1 / -1; }
+    ul { display: grid; grid-column: 1 / -1; grid-template-columns: subgrid; padding: 0; margin: 0; list-style: none; text-align: left; }
+    #forms { padding-bottom: 16px; }
+    li { display: grid; grid-template-columns: subgrid; grid-column: 1 / 4; font-size: 64px; line-height: 1.1; align-items: start; }
+    li:nth-child(n + 4) { grid-column: 5 / 8; }
+    li:nth-child(1), li:nth-child(4) { grid-row: 1; }
+    li:nth-child(2), li:nth-child(5) { grid-row: 2; }
+    li:nth-child(3), li:nth-child(6) { grid-row: 3; }
+    li > span { padding: 2px 0; }
+    li > span[lang="es"] { white-space: nowrap; }
+    .separator { padding: 2px 0.25em; }
+    .translation { overflow-wrap: anywhere; }
+    body, label, select, option, h1, p, li, span { font-weight: 700; }
+    [hidden] { display: none !important; }
+    .mode-control { grid-column: 1 / -1; grid-row: 1; display: flex; flex-wrap: wrap; gap: 32px; width: fit-content; max-width: 100%; }
+    .mode-control button { flex: 0 0 auto; padding: 12px 6px; font-size: 36px; color: #24324b; background: #fff8d6; border-color: #c9b85e; }
+    #word-list { display: grid; grid-template-columns: max-content minmax(0, 1fr); column-gap: 32px; }
+    #word-list li { display: grid; grid-template-columns: subgrid; grid-column: 1 / -1; grid-row: auto; font-size: 48px; line-height: 1.25; padding: 8px 0; }
+    #word-list li > span { white-space: normal; overflow-wrap: anywhere; }
+    .mode-control button[aria-pressed="true"] { background: #f5d968; border-color: #24324b; box-shadow: inset 0 -4px #24324b; }
+    select, section, #test { background: #fff8d6; color: #24324b; border-color: #ded29a; }
+    .test-actions { grid-column: 1 / -1; display: grid; grid-template-columns: subgrid; align-items: start; margin-top: 24px; }
+    #reveal { grid-column: 4; grid-row: 1; justify-self: center; transform: translateX(-100px); }
+    #next { grid-column: 5 / 8; grid-row: 1; justify-self: end; }
+    .test-actions button { font-size: 48px; padding: 16px 28px; min-width: 230px; white-space: nowrap; }
+    button { font: 700 26px system-ui, sans-serif; padding: 14px 24px; border: 2px solid #fff; border-radius: 12px; background: #fff; color: #000; cursor: pointer; }
+    button:disabled { opacity: 0.5; cursor: default; }
+    button:focus-visible { outline: 4px solid #4477cf; outline-offset: 4px; }
+    @media (max-width: 1100px) {
+      main { grid-template-columns: 220px minmax(0, 1fr); gap: 24px; padding: 24px 24px 24px 48px; }
+      label { font-size: 38px; }
+      section { padding: 32px 20px; }
+    }
+    @media (max-width: 760px) {
+      main { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto auto 1fr; gap: 24px; padding: 20px 20px 20px 48px; }
+      #verbs { min-height: 260px; }
+      section { grid-column: 1; grid-row: 3; padding: 32px 16px; }
+      h1 { font-size: 56px; }
+      li { font-size: 56px; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <aside>
+      <div class="mode-control" role="group" aria-label="Practice mode">
+        <button id="study-button" type="button" aria-pressed="true" aria-controls="conjugations">Study</button>
+        <button id="test-button" type="button" aria-pressed="false" aria-controls="test">Test</button>
+        <button id="words-button" type="button" aria-pressed="false" aria-controls="words">Words</button>
+      </div>
+      <div class="verb-picker">
+      <button type="button" class="verb-help" data-help="ser" aria-label="Help: Ser usage rules" aria-controls="rules">H</button>
+      <button type="button" class="verb-help" data-help="estar" aria-label="Help: Estar usage rules" aria-controls="rules">H</button>
+      <div id="verbs" role="listbox" aria-label="Conjugations" aria-controls="conjugations test words rules">
+        <button type="button" role="option" data-verb="ser" aria-selected="true" tabindex="0">Ser</button>
+        <button type="button" role="option" data-verb="estar" aria-selected="false" tabindex="-1">Estar</button>
+        <button type="button" role="option" data-verb="oir" aria-selected="false" tabindex="-1">Oír</button>
+        <button type="button" role="option" data-verb="ir" aria-selected="false" tabindex="-1">Ir</button>
+        <button type="button" role="option" data-verb="tener" aria-selected="false" tabindex="-1">Tener</button>
+        <button type="button" role="option" data-verb="decir" aria-selected="false" tabindex="-1">Decir</button>
+      </div>
+      </div>
+    </aside>
+    <section id="conjugations" aria-live="polite" aria-atomic="true" aria-labelledby="verb-title">
+      <div class="conjugation-scroll">
+      <div class="conjugation-grid">
+      <h1 id="verb-title">Ser - to be</h1>
+      <ul id="forms">
+        <li><span lang="es">soy</span><span class="separator"> - </span><span class="translation">I am</span></li>
+        <li><span lang="es">eres</span><span class="separator"> - </span><span class="translation">you are</span></li>
+        <li><span lang="es">es</span><span class="separator"> - </span><span class="translation">he/she/it is</span></li>
+        <li><span lang="es">somos</span><span class="separator"> - </span><span class="translation">we are</span></li>
+        <li><span lang="es">son</span><span class="separator"> - </span><span class="translation">you all are</span></li>
+        <li><span lang="es">son</span><span class="separator"> - </span><span class="translation">they are</span></li>
+      </ul>
+      </div>
+      </div>
+    </section>
+    <section id="words" hidden aria-labelledby="words-title" aria-live="polite">
+      <h1 id="words-title"></h1>
+      <ul id="word-list"></ul>
+    </section>
+    <section id="rules" hidden aria-labelledby="rules-title" aria-live="polite">
+      <h1 id="rules-title"></h1>
+      <ul id="rules-list"></ul>
+    </section>
+    <section id="test" hidden aria-label="English conjugation prompts">
+      <div class="conjugation-scroll">
+      <div class="conjugation-grid test-grid">
+      <h1 id="test-title">Ser - to be</h1>
+      <ul id="test-forms"></ul>
+      <div class="test-actions">
+        <button id="reveal" type="button" aria-expanded="false" aria-controls="test-forms">Reveal</button>
+        <button id="next" type="button">Shuffle</button>
+      </div>
+      </div>
+      </div>
+    </section>
+  </main>
+  <script>
+    const verbs = {
+      ser: { title: 'Ser - to be', forms: ['soy', 'eres', 'es', 'somos', 'son', 'son'] },
+      estar: { title: 'Estar - to be', forms: ['estoy', 'estás', 'está', 'estamos', 'están', 'están'] },
+      oir: { title: 'Oír - to hear', forms: ['oigo', 'oyes', 'oye', 'oímos', 'oyen', 'oyen'], translations: englishForms('hear', 'hears') },
+      ir: { title: 'Ir - to go', forms: ['voy', 'vas', 'va', 'vamos', 'van', 'van'], translations: englishForms('go', 'goes') },
+      tener: { title: 'Tener - to have', forms: ['tengo', 'tienes', 'tiene', 'tenemos', 'tienen', 'tienen'], translations: englishForms('have', 'has') },
+      decir: { title: 'Decir - to say', forms: ['digo', 'dices', 'dice', 'decimos', 'dicen', 'dicen'], translations: englishForms('say', 'says') }
+    };
+    function englishForms(base, thirdPerson) {
+      return [`I ${base}`, `you ${base}`, `he/she/it ${thirdPerson}`, `we ${base}`, `you all ${base}`, `they ${base}`];
+    }
+    const translations = ['I am', 'you are', 'he/she/it is', 'we are', 'you all are', 'they are'];
+    const verbList = document.getElementById('verbs');
+    verbList.value = 'ser';
+    document.getElementById('verbs').addEventListener('change', (event) => {
+      const verb = verbs[event.target.value];
+      document.getElementById('verb-title').textContent = verb.title;
+      document.getElementById('forms').replaceChildren(...verb.forms.map((form, index) => {
+        const item = document.createElement('li');
+        const spanish = document.createElement('span');
+        spanish.lang = 'es';
+        spanish.textContent = form;
+        const separator = document.createElement('span');
+        separator.className = 'separator';
+        separator.textContent = ' - ';
+        const translation = document.createElement('span');
+        translation.className = 'translation';
+        translation.textContent = (verb.translations || translations)[index];
+        item.append(spanish, separator, translation);
+        return item;
+      }));
+      if (activeMode === 'test') startTest();
+      if (activeMode === 'words') showWords();
+    });
+    let activeMode = 'study';
+    const sentences = {
+      ser: ['I am a teacher.', 'You are my friend.', 'She is from Mexico.', 'We are students.', 'You all are musicians.', 'They are my cousins.'],
+      estar: ['I am at home.', 'You are tired today.', 'He is in the kitchen.', 'We are happy today.', 'You all are in the classroom.', 'They are ready to leave.'],
+      oir: ['I hear a bird outside.', 'You hear the music.', 'She hears a dog barking.', 'We hear the rain.', 'You all hear the bell.', 'They hear a voice.'],
+      ir: ['I go to school.', 'You go to the park.', 'He goes to work.', 'We go to the library.', 'You all go to the beach.', 'They go to the store.'],
+      tener: ['I have a book.', 'You have a bicycle.', 'She has a dog.', 'We have a garden.', 'You all have a question.', 'They have two children.'],
+      decir: ['I say hello.', 'You say thank you.', 'He says goodbye.', 'We say what we think.', 'You all say the same thing.', 'They say that the food is delicious.']
+    };
+    const vocabulary = {
+      a: 'un / una', teacher: 'profesor / profesora', my: 'mi / mis', friend: 'amigo / amiga',
+      from: 'de', mexico: 'México', students: 'estudiantes', musicians: 'músicos', cousins: 'primos / primas',
+      at: 'en', home: 'casa', tired: 'cansado / cansada', today: 'hoy', in: 'en', the: 'el / la / los / las',
+      kitchen: 'cocina', happy: 'feliz', classroom: 'aula', ready: 'listo / lista', to: 'a / para', leave: 'salir',
+      bird: 'pájaro', outside: 'afuera', music: 'música', dog: 'perro', barking: 'ladrando', rain: 'lluvia',
+      bell: 'campana', voice: 'voz', school: 'escuela', park: 'parque', work: 'trabajo', library: 'biblioteca',
+      beach: 'playa', store: 'tienda', book: 'libro', bicycle: 'bicicleta', garden: 'jardín', question: 'pregunta',
+      two: 'dos', children: 'niños / niñas', hello: 'hola', thank: 'agradecer', you: 'tú', goodbye: 'adiós',
+      what: 'lo que', we: 'nosotros / nosotras', think: 'pensar', same: 'mismo / misma', thing: 'cosa',
+      that: 'que', food: 'comida', is: 'es', delicious: 'delicioso / deliciosa'
+    };
+    function sentenceWords(key) {
+      const openings = /^(?:I|You all|You|He|She|We|They)\s+(?:am|are|is|hear|hears|go|goes|have|has|say|says)\s+/i;
+      return [...new Set(sentences[key].flatMap(sentence =>
+        sentence.replace(openings, '').toLowerCase().match(/[a-z]+/g) || []
+      ))].sort((a, b) => a.localeCompare(b, 'en'));
+    }
+    function showWords() {
+      document.getElementById('words-title').textContent = verbs[verbList.value].title;
+      document.getElementById('word-list').replaceChildren(...sentenceWords(verbList.value).map(word => {
+        const item = document.createElement('li');
+        const english = document.createElement('span');
+        english.textContent = word === 'mexico' ? 'Mexico' : word;
+        const spanish = document.createElement('span');
+        spanish.lang = 'es';
+        spanish.textContent = vocabulary[word];
+        item.append(english, spanish);
+        return item;
+      }));
+    }
+    let testOrder = [];
+    function startTest() {
+      document.getElementById('reveal').textContent = 'Reveal';
+      document.getElementById('reveal').setAttribute('aria-expanded', 'false');
+      const verb = verbs[verbList.value];
+      const previous = testOrder.join(',');
+      testOrder = verb.forms.map((_, index) => index);
+      for (let i = testOrder.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [testOrder[i], testOrder[j]] = [testOrder[j], testOrder[i]];
+      }
+      if (testOrder.join(',') === previous || testOrder.join(',') === '0,1,2,3,4,5') testOrder.push(testOrder.shift());
+      document.getElementById('test-title').textContent = verb.title;
+      document.getElementById('test-forms').replaceChildren(...testOrder.map(index => {
+        const item = document.createElement('li');
+        const english = document.createElement('span');
+        english.className = 'translation';
+        english.textContent = (verb.translations || translations)[index];
+        const answer = document.createElement('span');
+        answer.className = 'test-answer';
+        answer.lang = 'es';
+        answer.hidden = true;
+        answer.textContent = ` - ${verb.forms[index]}`;
+        english.append(answer);
+        item.append(english);
+        return item;
+      }));
+    }
+
+    function setMode(mode) {
+      activeMode = mode;
+      hideRules();
+      ['study', 'test', 'words'].forEach(name => {
+        document.getElementById(`${name}-button`).setAttribute('aria-pressed', String(name === activeMode));
+      });
+      if (activeMode === 'test') startTest();
+      if (activeMode === 'words') showWords();
+    }
+    document.getElementById('study-button').addEventListener('click', () => setMode('study'));
+    document.getElementById('test-button').addEventListener('click', () => setMode('test'));
+    document.getElementById('words-button').addEventListener('click', () => setMode('words'));
+    // Usage categories: Bucks County Community College's Ser vs. Estar handout.
+    // https://www.bucks.edu/media/bcccmedialibrary/academicsuccesscenter/documents/writingareahandoutrevision/spanish/The-Verbs-Ser-and-Estar.pdf
+    const usageRules = {
+      ser: [
+        'Identity, occupations, and relationships — Es profesora. (She is a teacher.)',
+        'Origin and nationality — Son de México. (They are from Mexico.)',
+        'Characteristic qualities — Es amable. (He/She is kind.)',
+        'Time, days, and dates — Es lunes. (It is Monday.)',
+        'Possession — Es de Ana. (It belongs to Ana.)',
+        'Where an event takes place — La fiesta es aquí. (The party is here.)'
+      ],
+      estar: [
+        'Location of people and things — Está aquí. (He/She/It is here.)',
+        'Emotions — Estoy feliz. (I am happy.)',
+        'Health and physical condition — Está enfermo. (He is sick.)',
+        'States and results — La puerta está abierta. (The door is open.)',
+        'Actions in progress: estar + -ando/-iendo — Estamos hablando. (We are talking.)',
+        'Location uses estar even for fixed places — Madrid está en España. (Madrid is in Spain.)'
+      ]
+    };
+    function hideRules() {
+      document.getElementById('rules').hidden = true;
+      document.getElementById('conjugations').hidden = activeMode !== 'study';
+      document.getElementById('test').hidden = activeMode !== 'test';
+      document.getElementById('words').hidden = activeMode !== 'words';
+    }
+    function showRules(key) {
+      if (!usageRules[key]) { hideRules(); return; }
+
+      document.getElementById('rules-title').textContent = `${verbs[key].title} — Usage rules`;
+      document.getElementById('rules-list').replaceChildren(...usageRules[key].map(rule => {
+        const item = document.createElement('li');
+        item.textContent = rule;
+        return item;
+      }));
+      document.getElementById('conjugations').hidden = true;
+      document.getElementById('test').hidden = true;
+      document.getElementById('words').hidden = true;
+      document.getElementById('rules').hidden = false;
+    }
+    const verbOptions = Array.from(verbList.querySelectorAll('[role="option"]'));
+    document.querySelectorAll('.verb-help').forEach(help => {
+      help.addEventListener('pointerenter', event => {
+        if (event.pointerType !== 'touch') showRules(help.dataset.help);
+      });
+      help.addEventListener('pointerleave', hideRules);
+      help.addEventListener('focus', () => showRules(help.dataset.help));
+      help.addEventListener('blur', hideRules);
+      help.addEventListener('click', () => showRules(help.dataset.help));
+      help.addEventListener('keydown', event => { if (event.key === 'Escape') hideRules(); });
+    });
+    verbOptions.forEach((option, index) => {
+      option.addEventListener('click', () => {
+        hideRules();
+        verbList.value = option.dataset.verb;
+        verbOptions.forEach(item => {
+          item.setAttribute('aria-selected', String(item === option));
+          item.tabIndex = item === option ? 0 : -1;
+        });
+        verbList.dispatchEvent(new Event('change'));
+      });
+      option.addEventListener('keydown', event => {
+        if (event.key === 'Escape') { hideRules(); return; }
+        const next = { ArrowDown: (index + 1) % verbOptions.length, ArrowUp: (index + verbOptions.length - 1) % verbOptions.length, Home: 0, End: verbOptions.length - 1 }[event.key];
+        if (next !== undefined) {
+          event.preventDefault();
+          verbOptions.forEach((item, i) => { item.tabIndex = i === next ? 0 : -1; });
+          verbOptions[next].focus();
+        }
+      });
+    });
+    document.getElementById('next').addEventListener('click', startTest);
+    document.getElementById('reveal').addEventListener('click', () => {
+      const button = document.getElementById('reveal');
+      const reveal = button.getAttribute('aria-expanded') !== 'true';
+      document.querySelectorAll('.test-answer').forEach(answer => { answer.hidden = !reveal; });
+      button.setAttribute('aria-expanded', String(reveal));
+      button.textContent = reveal ? 'Hide' : 'Reveal';
+    });
+  </script>
+</body>
+</html>
