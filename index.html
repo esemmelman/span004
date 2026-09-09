@@ -62,6 +62,12 @@
     .ser-estar-feedback[data-correct="true"] { color: #176b32; }
     .ser-estar-feedback[data-correct="false"] { color: #b42318; }
     #ser-estar-next { margin-top: 32px; font-size: 48px; }
+    .conjugation-question { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 16px; padding: 24px 0; border-bottom: 1px solid #ded29a; text-align: left; }
+    .conjugation-question p { margin: 0; font-size: clamp(30px, 4vw, 48px); }
+    .conjugation-question u { text-underline-offset: 6px; }
+    .conjugation-question button { font-size: clamp(26px, 3vw, 40px); padding: 12px; }
+    .conjugation-question .conjugation-answer { margin-top: 12px; color: #176b32; }
+    #conjugation-test-next { margin-top: 32px; font-size: 48px; }
     #ser-estar > p { font-size: 24px; }
     @media (max-width: 480px) {
       .ser-estar-row { column-gap: 8px; }
@@ -91,7 +97,7 @@
   </style>
 </head>
 <body>
-  <header class="app-version">Version 1.0.5</header>
+  <header class="app-version">Version 1.1.0</header>
   <main>
     <aside>
       <div class="mode-control" role="group" aria-label="Practice mode">
@@ -99,6 +105,7 @@
         <button id="test-button" type="button" aria-pressed="false" aria-controls="test">Test</button>
         <button id="words-button" type="button" aria-pressed="false" aria-controls="words">Words</button>
         <button id="ser-estar-button" type="button" aria-pressed="false" aria-controls="ser-estar">Ser - Estar</button>
+        <button id="conjugation-test-button" type="button" aria-pressed="false" aria-controls="conjugation-test">Conjugation Test</button>
       </div>
       <div class="verb-picker">
       <button type="button" class="verb-help" data-help="ser" aria-label="Rules: Ser usage" aria-controls="rules">R</button>
@@ -140,6 +147,11 @@
       <h1 id="ser-estar-title" tabindex="-1">Ser - Estar</h1>
       <div id="ser-estar-list"></div>
       <button id="ser-estar-next" type="button">Try another set</button>
+    </section>
+    <section id="conjugation-test" hidden aria-labelledby="conjugation-test-title">
+      <h1 id="conjugation-test-title" tabindex="-1">Conjugation Test</h1>
+      <div id="conjugation-test-list"></div>
+      <button id="conjugation-test-next" type="button">Try another Set</button>
     </section>
     <section id="test" hidden aria-label="English conjugation prompts">
       <div class="conjugation-scroll">
@@ -350,10 +362,87 @@
       document.getElementById('ser-estar-title').scrollIntoView({ block: 'start' });
     });
 
+    const conjugationPrompts = [
+      ['ser', 0, 'Yo', 'estudiante.'],
+      ['ser', 1, 'Tú', 'mi amigo.'],
+      ['ser', 2, 'Ella', 'profesora.'],
+      ['ser', 3, 'Nosotros', 'de México.'],
+      ['ser', 4, 'Ustedes', 'músicos.'],
+      ['ser', 5, 'Ellos', 'mis primos.'],
+      ['estar', 0, 'Yo', 'en casa.'],
+      ['estar', 1, 'Tú', 'en el parque.'],
+      ['estar', 2, 'Él', 'cansado hoy.'],
+      ['estar', 3, 'Nosotras', 'en la escuela.'],
+      ['estar', 4, 'Ustedes', 'en la cocina.'],
+      ['estar', 5, 'Las llaves', 'sobre la mesa.'],
+      ['oir', 0, 'Yo', 'la música.'],
+      ['oir', 1, 'Tú', 'la lluvia.'],
+      ['oir', 2, 'Ella', 'un pájaro.'],
+      ['oir', 3, 'Nosotros', 'la campana.'],
+      ['oir', 4, 'Ustedes', 'una voz.'],
+      ['oir', 5, 'Ellos', 'el teléfono.'],
+      ['ir', 0, 'Yo', 'a la biblioteca.'],
+      ['ir', 1, 'Tú', 'al mercado.'],
+      ['ir', 2, 'Él', 'al trabajo.'],
+      ['ir', 3, 'Nosotras', 'a la playa.'],
+      ['ir', 4, 'Ustedes', 'al cine.'],
+      ['ir', 5, 'Ellas', 'a la escuela.'],
+      ['tener', 0, 'Yo', 'un libro.'],
+      ['tener', 1, 'Tú', 'una bicicleta.'],
+      ['tener', 2, 'Ella', 'dos hermanos.'],
+      ['tener', 3, 'Nosotros', 'un jardín.'],
+      ['tener', 4, 'Ustedes', 'una pregunta.'],
+      ['tener', 5, 'Ellos', 'un perro.'],
+      ['decir', 0, 'Yo', 'la verdad.'],
+      ['decir', 1, 'Tú', 'hola.'],
+      ['decir', 2, 'Él', 'adiós.'],
+      ['decir', 3, 'Nosotras', 'gracias.'],
+      ['decir', 4, 'Ustedes', 'lo mismo.'],
+      ['decir', 5, 'Ellas', 'buenos días.']
+    ];
+    let currentConjugationSet = [];
+    function newConjugationSet() {
+      currentConjugationSet = shuffled(conjugationPrompts.filter(prompt => !currentConjugationSet.includes(prompt))).slice(0, 10);
+      document.getElementById('conjugation-test-list').replaceChildren(...currentConjugationSet.map(([key, form, subject, ending], index) => {
+        const row = document.createElement('div');
+        row.className = 'conjugation-question';
+        const sentenceBlock = document.createElement('div');
+        const sentence = document.createElement('p');
+        sentence.lang = 'es';
+        const infinitive = document.createElement('u');
+        infinitive.textContent = key === 'oir' ? 'oír' : key;
+        sentence.append(`${index + 1}. ${subject} `, infinitive, ` ${ending}`);
+        const answer = document.createElement('p');
+        answer.id = `conjugation-answer-${index}`;
+        answer.className = 'conjugation-answer';
+        answer.lang = 'es';
+        answer.setAttribute('aria-live', 'polite');
+        const reveal = document.createElement('button');
+        reveal.type = 'button';
+        reveal.textContent = 'Reveal';
+        reveal.setAttribute('aria-label', `Reveal answer for sentence ${index + 1}`);
+        reveal.setAttribute('aria-controls', answer.id);
+        reveal.setAttribute('aria-expanded', 'false');
+        reveal.addEventListener('click', () => {
+          answer.textContent = verbs[key].forms[form];
+          reveal.setAttribute('aria-expanded', 'true');
+        });
+        sentenceBlock.append(sentence, answer);
+        row.append(sentenceBlock, reveal);
+        return row;
+      }));
+    }
+    newConjugationSet();
+    document.getElementById('conjugation-test-next').addEventListener('click', () => {
+      newConjugationSet();
+      document.getElementById('conjugation-test-title').focus();
+      document.getElementById('conjugation-test-title').scrollIntoView({ block: 'start' });
+    });
+
     function setMode(mode) {
       activeMode = mode;
       hideRules();
-      ['study', 'test', 'words', 'ser-estar'].forEach(name => {
+      ['study', 'test', 'words', 'ser-estar', 'conjugation-test'].forEach(name => {
         document.getElementById(`${name}-button`).setAttribute('aria-pressed', String(name === activeMode));
       });
       if (activeMode === 'test') startTest();
@@ -363,6 +452,7 @@
     document.getElementById('test-button').addEventListener('click', () => setMode('test'));
     document.getElementById('words-button').addEventListener('click', () => setMode('words'));
     document.getElementById('ser-estar-button').addEventListener('click', () => setMode('ser-estar'));
+    document.getElementById('conjugation-test-button').addEventListener('click', () => setMode('conjugation-test'));
     // Usage categories: Bucks County Community College's Ser vs. Estar handout.
     // https://www.bucks.edu/media/bcccmedialibrary/academicsuccesscenter/documents/writingareahandoutrevision/spanish/The-Verbs-Ser-and-Estar.pdf
     const usageRules = {
@@ -389,6 +479,7 @@
       document.getElementById('test').hidden = activeMode !== 'test';
       document.getElementById('words').hidden = activeMode !== 'words';
       document.getElementById('ser-estar').hidden = activeMode !== 'ser-estar';
+      document.getElementById('conjugation-test').hidden = activeMode !== 'conjugation-test';
     }
     function showRules(key) {
       if (!usageRules[key]) { hideRules(); return; }
@@ -403,6 +494,7 @@
       document.getElementById('test').hidden = true;
       document.getElementById('words').hidden = true;
       document.getElementById('ser-estar').hidden = true;
+      document.getElementById('conjugation-test').hidden = true;
       document.getElementById('rules').hidden = false;
     }
     const verbOptions = Array.from(verbList.querySelectorAll('[role="option"]'));
