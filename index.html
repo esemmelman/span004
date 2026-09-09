@@ -49,6 +49,20 @@
     #word-list li { display: grid; grid-template-columns: subgrid; grid-column: 1 / -1; grid-row: auto; font-size: 48px; line-height: 1.25; padding: 8px 0; }
     #word-list li > span { white-space: normal; overflow-wrap: anywhere; }
     .mode-control button[aria-pressed="true"] { background: #f5d968; border-color: #24324b; box-shadow: inset 0 -4px #24324b; }
+    #ser-estar-list { display: block; }
+    .ser-estar-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 12px 24px; align-items: center; padding: 20px 0; border-bottom: 1px solid #ded29a; text-align: left; }
+    .ser-estar-row p { margin: 0; font-size: clamp(22px, 3vw, 36px); }
+    .ser-estar-choices { display: flex; gap: 8px; }
+    .ser-estar-choices label { display: flex; align-items: center; gap: 6px; padding: 10px; border: 2px solid #ded29a; border-radius: 12px; font-size: 24px; cursor: pointer; }
+    .ser-estar-choices label:has(input:checked) { background: #f5d968; border-color: #24324b; }
+    .ser-estar-choices input { width: 20px; height: 20px; accent-color: #24324b; }
+    .ser-estar-feedback { grid-column: 1 / -1; font-size: 20px; }
+    #ser-estar > p { font-size: 24px; }
+    @media (max-width: 480px) {
+      .ser-estar-row { column-gap: 8px; }
+      .ser-estar-choices { flex-direction: column; }
+      .ser-estar-choices label { font-size: 20px; padding: 8px; }
+    }
     select, section, #test { background: #fff8d6; color: #24324b; border-color: #ded29a; }
     .test-actions { grid-column: 1 / -1; display: grid; grid-template-columns: subgrid; align-items: start; margin-top: 24px; }
     #reveal { grid-column: 4; grid-row: 1; justify-self: center; transform: translateX(-100px); }
@@ -78,10 +92,11 @@
         <button id="study-button" type="button" aria-pressed="true" aria-controls="conjugations">Study</button>
         <button id="test-button" type="button" aria-pressed="false" aria-controls="test">Test</button>
         <button id="words-button" type="button" aria-pressed="false" aria-controls="words">Words</button>
+        <button id="ser-estar-button" type="button" aria-pressed="false" aria-controls="ser-estar">Ser - Estar</button>
       </div>
       <div class="verb-picker">
-      <button type="button" class="verb-help" data-help="ser" aria-label="Help: Ser usage rules" aria-controls="rules">H</button>
-      <button type="button" class="verb-help" data-help="estar" aria-label="Help: Estar usage rules" aria-controls="rules">H</button>
+      <button type="button" class="verb-help" data-help="ser" aria-label="Rules: Ser usage" aria-controls="rules">R</button>
+      <button type="button" class="verb-help" data-help="estar" aria-label="Rules: Estar usage" aria-controls="rules">R</button>
       <div id="verbs" role="listbox" aria-label="Conjugations" aria-controls="conjugations test words rules">
         <button type="button" role="option" data-verb="ser" aria-selected="true" tabindex="0">Ser</button>
         <button type="button" role="option" data-verb="estar" aria-selected="false" tabindex="-1">Estar</button>
@@ -114,6 +129,11 @@
     <section id="rules" hidden aria-labelledby="rules-title" aria-live="polite">
       <h1 id="rules-title"></h1>
       <ul id="rules-list"></ul>
+    </section>
+    <section id="ser-estar" hidden aria-labelledby="ser-estar-title">
+      <h1 id="ser-estar-title">Ser - Estar</h1>
+      <p>Choose Ser or Estar for each English sentence.</p>
+      <div id="ser-estar-list"></div>
     </section>
     <section id="test" hidden aria-label="English conjugation prompts">
       <div class="conjugation-scroll">
@@ -232,10 +252,51 @@
       }));
     }
 
+    const serEstarSentences = [
+      { text: 'She is a teacher.', answer: 'ser', reason: 'Use Ser for occupations.' },
+      { text: 'The keys are on the table.', answer: 'estar', reason: 'Use Estar for the location of things.' },
+      { text: 'We are from Mexico.', answer: 'ser', reason: 'Use Ser for origin.' },
+      { text: 'He is tired today.', answer: 'estar', reason: 'Use Estar for a physical condition.' },
+      { text: 'They are my cousins.', answer: 'ser', reason: 'Use Ser for relationships.' },
+      { text: 'I am at home.', answer: 'estar', reason: 'Use Estar for the location of people.' },
+      { text: 'The door is open.', answer: 'estar', reason: 'Use Estar for a state or result.' },
+      { text: 'Today is Monday.', answer: 'ser', reason: 'Use Ser for days and dates.' },
+      { text: 'We are studying right now.', answer: 'estar', reason: 'Use Estar with a present participle for an action in progress.' },
+      { text: 'It is three o’clock.', answer: 'ser', reason: 'Use Ser to tell the time.' }
+    ];
+    document.getElementById('ser-estar-list').replaceChildren(...serEstarSentences.map((sentence, index) => {
+      const row = document.createElement('div');
+      row.className = 'ser-estar-row';
+      const prompt = document.createElement('p');
+      prompt.id = `ser-estar-prompt-${index}`;
+      prompt.textContent = `${index + 1}. ${sentence.text}`;
+      const choices = document.createElement('div');
+      choices.className = 'ser-estar-choices';
+      choices.setAttribute('role', 'radiogroup');
+      choices.setAttribute('aria-labelledby', prompt.id);
+      const feedback = document.createElement('div');
+      feedback.className = 'ser-estar-feedback';
+      feedback.setAttribute('aria-live', 'polite');
+      for (const verb of ['ser', 'estar']) {
+        const label = document.createElement('label');
+        const input = document.createElement('input');
+        input.type = 'radio';
+        input.name = `ser-estar-answer-${index}`;
+        input.value = verb;
+        input.addEventListener('change', () => {
+          feedback.textContent = `${verb === sentence.answer ? 'Correct!' : 'Try again.'} ${sentence.reason}`;
+        });
+        label.append(input, verb === 'ser' ? 'Ser' : 'Estar');
+        choices.append(label);
+      }
+      row.append(prompt, choices, feedback);
+      return row;
+    }));
+
     function setMode(mode) {
       activeMode = mode;
       hideRules();
-      ['study', 'test', 'words'].forEach(name => {
+      ['study', 'test', 'words', 'ser-estar'].forEach(name => {
         document.getElementById(`${name}-button`).setAttribute('aria-pressed', String(name === activeMode));
       });
       if (activeMode === 'test') startTest();
@@ -244,6 +305,7 @@
     document.getElementById('study-button').addEventListener('click', () => setMode('study'));
     document.getElementById('test-button').addEventListener('click', () => setMode('test'));
     document.getElementById('words-button').addEventListener('click', () => setMode('words'));
+    document.getElementById('ser-estar-button').addEventListener('click', () => setMode('ser-estar'));
     // Usage categories: Bucks County Community College's Ser vs. Estar handout.
     // https://www.bucks.edu/media/bcccmedialibrary/academicsuccesscenter/documents/writingareahandoutrevision/spanish/The-Verbs-Ser-and-Estar.pdf
     const usageRules = {
@@ -269,6 +331,7 @@
       document.getElementById('conjugations').hidden = activeMode !== 'study';
       document.getElementById('test').hidden = activeMode !== 'test';
       document.getElementById('words').hidden = activeMode !== 'words';
+      document.getElementById('ser-estar').hidden = activeMode !== 'ser-estar';
     }
     function showRules(key) {
       if (!usageRules[key]) { hideRules(); return; }
@@ -282,6 +345,7 @@
       document.getElementById('conjugations').hidden = true;
       document.getElementById('test').hidden = true;
       document.getElementById('words').hidden = true;
+      document.getElementById('ser-estar').hidden = true;
       document.getElementById('rules').hidden = false;
     }
     const verbOptions = Array.from(verbList.querySelectorAll('[role="option"]'));
@@ -289,9 +353,7 @@
       help.addEventListener('pointerenter', event => {
         if (event.pointerType !== 'touch') showRules(help.dataset.help);
       });
-      help.addEventListener('pointerleave', hideRules);
       help.addEventListener('focus', () => showRules(help.dataset.help));
-      help.addEventListener('blur', hideRules);
       help.addEventListener('click', () => showRules(help.dataset.help));
       help.addEventListener('keydown', event => { if (event.key === 'Escape') hideRules(); });
     });
