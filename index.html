@@ -67,6 +67,7 @@
     .conjugation-question u { text-underline-offset: 6px; }
     .conjugation-question button { font-size: clamp(26px, 3vw, 40px); padding: 12px; }
     .conjugation-question .conjugation-answer { margin-top: 12px; color: #176b32; }
+    .conjugation-question .conjugation-english { margin-top: 12px; font-size: clamp(26px, 3vw, 36px); }
     #conjugation-test-next { margin-top: 32px; font-size: 48px; }
     #ser-estar > p { font-size: 24px; }
     @media (max-width: 480px) {
@@ -97,7 +98,7 @@
   </style>
 </head>
 <body>
-  <header class="app-version">Version 1.1.0</header>
+  <header class="app-version">Version 1.1.1</header>
   <main>
     <aside>
       <div class="mode-control" role="group" aria-label="Practice mode">
@@ -363,47 +364,47 @@
     });
 
     const conjugationPrompts = [
-      ['ser', 0, 'Yo', 'estudiante.'],
-      ['ser', 1, 'Tú', 'mi amigo.'],
-      ['ser', 2, 'Ella', 'profesora.'],
-      ['ser', 3, 'Nosotros', 'de México.'],
-      ['ser', 4, 'Ustedes', 'músicos.'],
-      ['ser', 5, 'Ellos', 'mis primos.'],
-      ['estar', 0, 'Yo', 'en casa.'],
-      ['estar', 1, 'Tú', 'en el parque.'],
-      ['estar', 2, 'Él', 'cansado hoy.'],
-      ['estar', 3, 'Nosotras', 'en la escuela.'],
-      ['estar', 4, 'Ustedes', 'en la cocina.'],
-      ['estar', 5, 'Las llaves', 'sobre la mesa.'],
-      ['oir', 0, 'Yo', 'la música.'],
-      ['oir', 1, 'Tú', 'la lluvia.'],
-      ['oir', 2, 'Ella', 'un pájaro.'],
-      ['oir', 3, 'Nosotros', 'la campana.'],
-      ['oir', 4, 'Ustedes', 'una voz.'],
-      ['oir', 5, 'Ellos', 'el teléfono.'],
-      ['ir', 0, 'Yo', 'a la biblioteca.'],
-      ['ir', 1, 'Tú', 'al mercado.'],
-      ['ir', 2, 'Él', 'al trabajo.'],
-      ['ir', 3, 'Nosotras', 'a la playa.'],
-      ['ir', 4, 'Ustedes', 'al cine.'],
-      ['ir', 5, 'Ellas', 'a la escuela.'],
-      ['tener', 0, 'Yo', 'un libro.'],
-      ['tener', 1, 'Tú', 'una bicicleta.'],
-      ['tener', 2, 'Ella', 'dos hermanos.'],
-      ['tener', 3, 'Nosotros', 'un jardín.'],
-      ['tener', 4, 'Ustedes', 'una pregunta.'],
-      ['tener', 5, 'Ellos', 'un perro.'],
-      ['decir', 0, 'Yo', 'la verdad.'],
-      ['decir', 1, 'Tú', 'hola.'],
-      ['decir', 2, 'Él', 'adiós.'],
-      ['decir', 3, 'Nosotras', 'gracias.'],
-      ['decir', 4, 'Ustedes', 'lo mismo.'],
-      ['decir', 5, 'Ellas', 'buenos días.']
+      ['ser', 0, 'Yo', 'estudiante.', 'I am a student.'],
+      ['ser', 1, 'Tú', 'mi amigo.', 'You are my friend.'],
+      ['ser', 2, 'Ella', 'profesora.', 'She is a teacher.'],
+      ['ser', 3, 'Nosotros', 'de México.', 'We are from Mexico.'],
+      ['ser', 4, 'Ustedes', 'músicos.', 'You all are musicians.'],
+      ['ser', 5, 'Ellos', 'mis primos.', 'They are my cousins.'],
+      ['estar', 0, 'Yo', 'en casa.', 'I am at home.'],
+      ['estar', 1, 'Tú', 'en el parque.', 'You are in the park.'],
+      ['estar', 2, 'Él', 'cansado hoy.', 'He is tired today.'],
+      ['estar', 3, 'Nosotras', 'en la escuela.', 'We are at school.'],
+      ['estar', 4, 'Ustedes', 'en la cocina.', 'You all are in the kitchen.'],
+      ['estar', 5, 'Las llaves', 'sobre la mesa.', 'The keys are on the table.'],
+      ['oir', 0, 'Yo', 'la música.', 'I hear the music.'],
+      ['oir', 1, 'Tú', 'la lluvia.', 'You hear the rain.'],
+      ['oir', 2, 'Ella', 'un pájaro.', 'She hears a bird.'],
+      ['oir', 3, 'Nosotros', 'la campana.', 'We hear the bell.'],
+      ['oir', 4, 'Ustedes', 'una voz.', 'You all hear a voice.'],
+      ['oir', 5, 'Ellos', 'el teléfono.', 'They hear the telephone.'],
+      ['ir', 0, 'Yo', 'a la biblioteca.', 'I go to the library.'],
+      ['ir', 1, 'Tú', 'al mercado.', 'You go to the market.'],
+      ['ir', 2, 'Él', 'al trabajo.', 'He goes to work.'],
+      ['ir', 3, 'Nosotras', 'a la playa.', 'We go to the beach.'],
+      ['ir', 4, 'Ustedes', 'al cine.', 'You all go to the movies.'],
+      ['ir', 5, 'Ellas', 'a la escuela.', 'They go to school.'],
+      ['tener', 0, 'Yo', 'un libro.', 'I have a book.'],
+      ['tener', 1, 'Tú', 'una bicicleta.', 'You have a bicycle.'],
+      ['tener', 2, 'Ella', 'dos hermanos.', 'She has two brothers.'],
+      ['tener', 3, 'Nosotros', 'un jardín.', 'We have a garden.'],
+      ['tener', 4, 'Ustedes', 'una pregunta.', 'You all have a question.'],
+      ['tener', 5, 'Ellos', 'un perro.', 'They have a dog.'],
+      ['decir', 0, 'Yo', 'la verdad.', 'I tell the truth.'],
+      ['decir', 1, 'Tú', 'hola.', 'You say hello.'],
+      ['decir', 2, 'Él', 'adiós.', 'He says goodbye.'],
+      ['decir', 3, 'Nosotras', 'gracias.', 'We say thank you.'],
+      ['decir', 4, 'Ustedes', 'lo mismo.', 'You all say the same thing.'],
+      ['decir', 5, 'Ellas', 'buenos días.', 'They say good morning.']
     ];
     let currentConjugationSet = [];
     function newConjugationSet() {
       currentConjugationSet = shuffled(conjugationPrompts.filter(prompt => !currentConjugationSet.includes(prompt))).slice(0, 10);
-      document.getElementById('conjugation-test-list').replaceChildren(...currentConjugationSet.map(([key, form, subject, ending], index) => {
+      document.getElementById('conjugation-test-list').replaceChildren(...currentConjugationSet.map(([key, form, subject, ending, translation], index) => {
         const row = document.createElement('div');
         row.className = 'conjugation-question';
         const sentenceBlock = document.createElement('div');
@@ -412,6 +413,10 @@
         const infinitive = document.createElement('u');
         infinitive.textContent = key === 'oir' ? 'oír' : key;
         sentence.append(`${index + 1}. ${subject} `, infinitive, ` ${ending}`);
+        const english = document.createElement('p');
+        english.className = 'conjugation-english';
+        english.lang = 'en';
+        english.textContent = translation;
         const answer = document.createElement('p');
         answer.id = `conjugation-answer-${index}`;
         answer.className = 'conjugation-answer';
@@ -427,7 +432,7 @@
           answer.textContent = verbs[key].forms[form];
           reveal.setAttribute('aria-expanded', 'true');
         });
-        sentenceBlock.append(sentence, answer);
+        sentenceBlock.append(sentence, english, answer);
         row.append(sentenceBlock, reveal);
         return row;
       }));
