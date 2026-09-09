@@ -55,16 +55,16 @@
     .ser-estar-row p { margin: 0; font-size: clamp(30px, 4vw, 48px); }
     .ser-estar-row .ser-estar-translation { margin-top: 12px; }
     .ser-estar-choices { display: flex; gap: 8px; }
-    .ser-estar-choices label { display: flex; align-items: center; gap: 6px; padding: 10px; border: 2px solid #ded29a; border-radius: 12px; font-size: 32px; cursor: pointer; }
+    .ser-estar-choices label { display: flex; align-items: center; gap: 8px; padding: 12px; border: 2px solid #ded29a; border-radius: 12px; font-size: 48px; cursor: pointer; }
     .ser-estar-choices label:has(input:checked) { background: #f5d968; border-color: #24324b; }
-    .ser-estar-choices input { width: 20px; height: 20px; accent-color: #24324b; }
+    .ser-estar-choices input { width: 28px; height: 28px; flex-shrink: 0; accent-color: #24324b; }
     .ser-estar-feedback { grid-column: 1 / -1; font-size: clamp(26px, 3vw, 36px); }
     #ser-estar-next { margin-top: 32px; font-size: 32px; }
     #ser-estar > p { font-size: 24px; }
     @media (max-width: 480px) {
       .ser-estar-row { column-gap: 8px; }
       .ser-estar-choices { flex-direction: column; }
-      .ser-estar-choices label { font-size: 26px; padding: 8px; }
+      .ser-estar-choices label { font-size: 36px; padding: 8px; }
     }
     select, section, #test { background: #fff8d6; color: #24324b; border-color: #ded29a; }
     .test-actions { grid-column: 1 / -1; display: grid; grid-template-columns: subgrid; align-items: start; margin-top: 24px; }
@@ -89,7 +89,7 @@
   </style>
 </head>
 <body>
-  <header class="app-version">Version 1.0.1</header>
+  <header class="app-version">Version 1.0.2</header>
   <main>
     <aside>
       <div class="mode-control" role="group" aria-label="Practice mode">
