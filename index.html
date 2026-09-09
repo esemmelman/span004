@@ -51,17 +51,19 @@
     .mode-control button[aria-pressed="true"] { background: #f5d968; border-color: #24324b; box-shadow: inset 0 -4px #24324b; }
     #ser-estar-list { display: block; }
     .ser-estar-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 12px 24px; align-items: center; padding: 20px 0; border-bottom: 1px solid #ded29a; text-align: left; }
-    .ser-estar-row p { margin: 0; font-size: clamp(22px, 3vw, 36px); }
+    .ser-estar-row p { margin: 0; font-size: clamp(30px, 4vw, 48px); }
+    .ser-estar-row .ser-estar-translation { margin-top: 12px; }
     .ser-estar-choices { display: flex; gap: 8px; }
-    .ser-estar-choices label { display: flex; align-items: center; gap: 6px; padding: 10px; border: 2px solid #ded29a; border-radius: 12px; font-size: 24px; cursor: pointer; }
+    .ser-estar-choices label { display: flex; align-items: center; gap: 6px; padding: 10px; border: 2px solid #ded29a; border-radius: 12px; font-size: 32px; cursor: pointer; }
     .ser-estar-choices label:has(input:checked) { background: #f5d968; border-color: #24324b; }
     .ser-estar-choices input { width: 20px; height: 20px; accent-color: #24324b; }
-    .ser-estar-feedback { grid-column: 1 / -1; font-size: 20px; }
+    .ser-estar-feedback { grid-column: 1 / -1; font-size: clamp(26px, 3vw, 36px); }
+    #ser-estar-next { margin-top: 32px; font-size: 32px; }
     #ser-estar > p { font-size: 24px; }
     @media (max-width: 480px) {
       .ser-estar-row { column-gap: 8px; }
       .ser-estar-choices { flex-direction: column; }
-      .ser-estar-choices label { font-size: 20px; padding: 8px; }
+      .ser-estar-choices label { font-size: 26px; padding: 8px; }
     }
     select, section, #test { background: #fff8d6; color: #24324b; border-color: #ded29a; }
     .test-actions { grid-column: 1 / -1; display: grid; grid-template-columns: subgrid; align-items: start; margin-top: 24px; }
@@ -131,9 +133,9 @@
       <ul id="rules-list"></ul>
     </section>
     <section id="ser-estar" hidden aria-labelledby="ser-estar-title">
-      <h1 id="ser-estar-title">Ser - Estar</h1>
-      <p>Choose Ser or Estar for each English sentence.</p>
+      <h1 id="ser-estar-title" tabindex="-1">Ser - Estar</h1>
       <div id="ser-estar-list"></div>
+      <button id="ser-estar-next" type="button">Try another set</button>
     </section>
     <section id="test" hidden aria-label="English conjugation prompts">
       <div class="conjugation-scroll">
@@ -253,23 +255,64 @@
     }
 
     const serEstarSentences = [
-      { text: 'She is a teacher.', answer: 'ser', reason: 'Use Ser for occupations.' },
-      { text: 'The keys are on the table.', answer: 'estar', reason: 'Use Estar for the location of things.' },
-      { text: 'We are from Mexico.', answer: 'ser', reason: 'Use Ser for origin.' },
-      { text: 'He is tired today.', answer: 'estar', reason: 'Use Estar for a physical condition.' },
-      { text: 'They are my cousins.', answer: 'ser', reason: 'Use Ser for relationships.' },
-      { text: 'I am at home.', answer: 'estar', reason: 'Use Estar for the location of people.' },
-      { text: 'The door is open.', answer: 'estar', reason: 'Use Estar for a state or result.' },
-      { text: 'Today is Monday.', answer: 'ser', reason: 'Use Ser for days and dates.' },
-      { text: 'We are studying right now.', answer: 'estar', reason: 'Use Estar with a present participle for an action in progress.' },
-      { text: 'It is three o’clock.', answer: 'ser', reason: 'Use Ser to tell the time.' }
+      { text: 'She is a teacher.', spanish: 'Ella es profesora.', answer: 'ser', reason: 'Use Ser for occupations.' },
+      { text: 'The keys are on the table.', spanish: 'Las llaves están sobre la mesa.', answer: 'estar', reason: 'Use Estar for the location of things.' },
+      { text: 'We are from Mexico.', spanish: 'Somos de México.', answer: 'ser', reason: 'Use Ser for origin.' },
+      { text: 'He is tired today.', spanish: 'Él está cansado hoy.', answer: 'estar', reason: 'Use Estar for a physical condition.' },
+      { text: 'They are my cousins.', spanish: 'Ellos son mis primos.', answer: 'ser', reason: 'Use Ser for relationships.' },
+      { text: 'I am at home.', spanish: 'Estoy en casa.', answer: 'estar', reason: 'Use Estar for the location of people.' },
+      { text: 'The door is open.', spanish: 'La puerta está abierta.', answer: 'estar', reason: 'Use Estar for a state or result.' },
+      { text: 'Today is Monday.', spanish: 'Hoy es lunes.', answer: 'ser', reason: 'Use Ser for days and dates.' },
+      { text: 'We are studying right now.', spanish: 'Estamos estudiando ahora mismo.', answer: 'estar', reason: 'Use Estar with a present participle for an action in progress.' },
+      { text: 'It is three o’clock.', spanish: 'Son las tres.', answer: 'ser', reason: 'Use Ser to tell the time.' },
+      { text: 'My brother is a doctor.', spanish: 'Mi hermano es médico.', answer: 'ser', reason: 'Use Ser for occupations.' },
+      { text: 'This ring is made of gold.', spanish: 'Este anillo es de oro.', answer: 'ser', reason: 'Use Ser for what something is made of.' },
+      { text: 'You are my best friend.', spanish: 'Eres mi mejor amigo.', answer: 'ser', reason: 'Use Ser for relationships.' },
+      { text: 'The concert is on Friday.', spanish: 'El concierto es el viernes.', answer: 'ser', reason: 'Use Ser for when an event takes place.' },
+      { text: 'They are from Spain.', spanish: 'Ellos son de España.', answer: 'ser', reason: 'Use Ser for origin.' },
+      { text: 'The party is at Ana’s house.', spanish: 'La fiesta es en casa de Ana.', answer: 'ser', reason: 'Use Ser for where an event takes place.' },
+      { text: 'This book is mine.', spanish: 'Este libro es mío.', answer: 'ser', reason: 'Use Ser for possession.' },
+      { text: 'My sister is Canadian.', spanish: 'Mi hermana es canadiense.', answer: 'ser', reason: 'Use Ser for nationality.' },
+      { text: 'The table is made of wood.', spanish: 'La mesa es de madera.', answer: 'ser', reason: 'Use Ser for what something is made of.' },
+      { text: 'Tomorrow is Tuesday.', spanish: 'Mañana es martes.', answer: 'ser', reason: 'Use Ser for days and dates.' },
+      { text: 'The children are in the garden.', spanish: 'Los niños están en el jardín.', answer: 'estar', reason: 'Use Estar for the location of people.' },
+      { text: 'She is sick today.', spanish: 'Ella está enferma hoy.', answer: 'estar', reason: 'Use Estar for health conditions.' },
+      { text: 'We are waiting for the bus.', spanish: 'Estamos esperando el autobús.', answer: 'estar', reason: 'Use Estar with a present participle for an action in progress.' },
+      { text: 'The windows are closed.', spanish: 'Las ventanas están cerradas.', answer: 'estar', reason: 'Use Estar for a state or result.' },
+      { text: 'I am nervous about the exam.', spanish: 'Estoy nervioso por el examen.', answer: 'estar', reason: 'Use Estar for emotions.' },
+      { text: 'Your backpack is under the chair.', spanish: 'Tu mochila está debajo de la silla.', answer: 'estar', reason: 'Use Estar for the location of things.' },
+      { text: 'They are cooking dinner right now.', spanish: 'Ellos están cocinando la cena ahora mismo.', answer: 'estar', reason: 'Use Estar with a present participle for an action in progress.' },
+      { text: 'The plates are dirty.', spanish: 'Los platos están sucios.', answer: 'estar', reason: 'Use Estar for a state or condition.' },
+      { text: 'Madrid is in Spain.', spanish: 'Madrid está en España.', answer: 'estar', reason: 'Use Estar for location, even for fixed places.' },
+      { text: 'He is happy about the good news.', spanish: 'Él está feliz por las buenas noticias.', answer: 'estar', reason: 'Use Estar for emotions.' }
     ];
-    document.getElementById('ser-estar-list').replaceChildren(...serEstarSentences.map((sentence, index) => {
+    function shuffled(items) {
+      const result = [...items];
+      for (let i = result.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [result[i], result[j]] = [result[j], result[i]];
+      }
+      return result;
+    }
+    let currentSerEstarSet = [];
+    function newSerEstarSet() {
+      const available = serEstarSentences.filter(sentence => !currentSerEstarSet.includes(sentence));
+      currentSerEstarSet = shuffled(['ser', 'estar'].flatMap(answer =>
+        shuffled(available.filter(sentence => sentence.answer === answer)).slice(0, 5)
+      ));
+      document.getElementById('ser-estar-list').replaceChildren(...currentSerEstarSet.map((sentence, index) => {
       const row = document.createElement('div');
       row.className = 'ser-estar-row';
       const prompt = document.createElement('p');
       prompt.id = `ser-estar-prompt-${index}`;
       prompt.textContent = `${index + 1}. ${sentence.text}`;
+      const sentenceBlock = document.createElement('div');
+      const spanish = document.createElement('p');
+      spanish.className = 'ser-estar-translation';
+      spanish.lang = 'es';
+      spanish.hidden = true;
+      sentenceBlock.setAttribute('aria-live', 'polite');
+      sentenceBlock.append(prompt, spanish);
       const choices = document.createElement('div');
       choices.className = 'ser-estar-choices';
       choices.setAttribute('role', 'radiogroup');
@@ -285,13 +328,22 @@
         input.value = verb;
         input.addEventListener('change', () => {
           feedback.textContent = `${verb === sentence.answer ? 'Correct!' : 'Try again.'} ${sentence.reason}`;
+          spanish.textContent = sentence.spanish;
+          spanish.hidden = false;
         });
         label.append(input, verb === 'ser' ? 'Ser' : 'Estar');
         choices.append(label);
       }
-      row.append(prompt, choices, feedback);
+      row.append(sentenceBlock, choices, feedback);
       return row;
-    }));
+      }));
+    }
+    newSerEstarSet();
+    document.getElementById('ser-estar-next').addEventListener('click', () => {
+      newSerEstarSet();
+      document.getElementById('ser-estar-title').focus();
+      document.getElementById('ser-estar-title').scrollIntoView({ block: 'start' });
+    });
 
     function setMode(mode) {
       activeMode = mode;
