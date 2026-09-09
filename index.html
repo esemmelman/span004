@@ -45,6 +45,7 @@
     [hidden] { display: none !important; }
     .mode-control { grid-column: 1 / -1; grid-row: 1; display: flex; flex-wrap: wrap; gap: 32px; width: fit-content; max-width: 100%; }
     .mode-control button { flex: 0 0 auto; padding: 12px 6px; font-size: 36px; color: #24324b; background: #fff8d6; border-color: #c9b85e; }
+    .app-version { align-self: center; font-size: 18px; white-space: nowrap; }
     #word-list { display: grid; grid-template-columns: max-content minmax(0, 1fr); column-gap: 32px; }
     #word-list li { display: grid; grid-template-columns: subgrid; grid-column: 1 / -1; grid-row: auto; font-size: 48px; line-height: 1.25; padding: 8px 0; }
     #word-list li > span { white-space: normal; overflow-wrap: anywhere; }
@@ -95,6 +96,7 @@
         <button id="test-button" type="button" aria-pressed="false" aria-controls="test">Test</button>
         <button id="words-button" type="button" aria-pressed="false" aria-controls="words">Words</button>
         <button id="ser-estar-button" type="button" aria-pressed="false" aria-controls="ser-estar">Ser - Estar</button>
+        <span class="app-version">Version 1.0.0</span>
       </div>
       <div class="verb-picker">
       <button type="button" class="verb-help" data-help="ser" aria-label="Rules: Ser usage" aria-controls="rules">R</button>
