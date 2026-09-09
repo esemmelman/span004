@@ -67,7 +67,10 @@
     .conjugation-question u { text-underline-offset: 6px; }
     .conjugation-question button { font-size: clamp(26px, 3vw, 40px); padding: 12px; }
     .conjugation-question .conjugation-answer { margin-top: 12px; color: #176b32; }
-    .conjugation-question .conjugation-english { margin-top: 12px; font-size: clamp(26px, 3vw, 36px); }
+    .conjugation-sentence-block { display: grid; grid-template-columns: max-content minmax(0, 1fr); column-gap: 0.3em; font-size: clamp(30px, 4vw, 48px); }
+    .conjugation-sentence-block > p { grid-column: 2; }
+    .conjugation-number { grid-column: 1; grid-row: 1; }
+    .conjugation-question .conjugation-english { margin-top: 12px; }
     #conjugation-test-next { margin-top: 32px; font-size: 48px; }
     #ser-estar > p { font-size: 24px; }
     @media (max-width: 480px) {
@@ -98,7 +101,7 @@
   </style>
 </head>
 <body>
-  <header class="app-version">Version 1.1.1</header>
+  <header class="app-version">Version 1.1.2</header>
   <main>
     <aside>
       <div class="mode-control" role="group" aria-label="Practice mode">
@@ -408,11 +411,15 @@
         const row = document.createElement('div');
         row.className = 'conjugation-question';
         const sentenceBlock = document.createElement('div');
+        sentenceBlock.className = 'conjugation-sentence-block';
+        const number = document.createElement('span');
+        number.className = 'conjugation-number';
+        number.textContent = `${index + 1}.`;
         const sentence = document.createElement('p');
         sentence.lang = 'es';
         const infinitive = document.createElement('u');
         infinitive.textContent = key === 'oir' ? 'oír' : key;
-        sentence.append(`${index + 1}. ${subject} `, infinitive, ` ${ending}`);
+        sentence.append(`${subject} `, infinitive, ` ${ending}`);
         const english = document.createElement('p');
         english.className = 'conjugation-english';
         english.lang = 'en';
@@ -432,7 +439,7 @@
           answer.textContent = verbs[key].forms[form];
           reveal.setAttribute('aria-expanded', 'true');
         });
-        sentenceBlock.append(sentence, english, answer);
+        sentenceBlock.append(number, sentence, english, answer);
         row.append(sentenceBlock, reveal);
         return row;
       }));
